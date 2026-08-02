@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trench Run — Design Documentation</title>
+<meta name="description" content="Trench Run: a 20-minute gradual-release reading activity design doc by Chloé Newell.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cello:#1f3a61;
+    --cello-deep:#152a49;
+    --curious:#368add;
+    --vista:#2fa876;
+    --vista-light:#76d59f;
+    --sidecar:#f3e3b4;
+    --white:#ffffff;
+    --ink:#1c2733;
+    --ink-soft:#4a5a6b;
+    --line:#dfe6ee;
+    --paper:#f7f9fc;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+  body{margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--white); line-height:1.6;}
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif; color:var(--cello); margin:0; letter-spacing:-0.01em;}
+  a{color:var(--curious);}
+  a:focus-visible, summary:focus-visible{outline:3px solid var(--curious); outline-offset:2px;}
+  .wrap{max-width:880px; margin:0 auto; padding:0 28px;}
+  .tag{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--curious); display:inline-block; margin-bottom:8px;}
+
+  nav.subnav{
+    position:sticky; top:0; z-index:10;
+    background:var(--cello); border-bottom:1px solid rgba(255,255,255,0.1);
+    padding:14px 0;
+  }
+  nav.subnav .wrap{display:flex; gap:18px; flex-wrap:wrap; align-items:center;}
+  nav.subnav a{
+    color:#c9d6e6; text-decoration:none; font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px; letter-spacing:0.02em;
+  }
+  nav.subnav a:hover{color:var(--vista-light);}
+  nav.subnav .navtitle{color:var(--white); font-weight:600; font-family:'Space Grotesk',sans-serif; margin-right:auto; font-size:15px;}
+
+  header.doc-hero{background:var(--cello); color:var(--white); padding:56px 0 44px;}
+  header.doc-hero h1{color:var(--white); font-size:clamp(30px,5vw,44px);}
+  header.doc-hero .sub{color:var(--sidecar); font-family:'IBM Plex Mono',monospace; font-size:14px; margin-top:14px;}
+  header.doc-hero .meta{color:#c9d6e6; font-size:14px; margin-top:6px;}
+
+  section{padding:56px 0;}
+  section.alt{background:var(--paper);}
+  .section-head{margin-bottom:28px;}
+  .section-head h2{font-size:clamp(22px,3vw,28px);}
+  p.body-text{font-size:16px; color:var(--ink-soft); max-width:720px;}
+  p.body-text + p.body-text{margin-top:14px;}
+
+  table.timing{width:100%; border-collapse:collapse; margin-top:20px; font-size:14px;}
+  table.timing th{background:var(--cello); color:var(--white); text-align:left; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.03em;}
+  table.timing td{padding:10px 12px; border-bottom:1px solid var(--line); color:var(--ink);}
+  table.timing tr:last-child td{font-weight:600; background:var(--paper);}
+
+  ul.assumptions{padding-left:20px; color:var(--ink-soft); font-size:15px;}
+  ul.assumptions li{margin-bottom:10px;}
+  ul.assumptions li::marker{color:var(--vista);}
+
+  .segment-block{padding:44px 0; border-top:1px solid var(--line);}
+  .segment-block:first-of-type{border-top:none;}
+  .segment-title{font-size:24px; font-weight:600; color:var(--cello); margin-bottom:4px;}
+  .segment-fig{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--curious);
+    text-transform:uppercase; letter-spacing:0.05em; margin-bottom:18px; display:block;
+  }
+  .segment-img{width:100%; max-width:720px; border-radius:10px; border:1px solid var(--line); display:block; margin-bottom:22px;}
+
+  .tagline{
+    font-family:'IBM Plex Mono',monospace; font-size:13.5px; color:var(--ink-soft);
+    background:var(--paper); padding:12px 16px; border-radius:8px; margin-bottom:14px; line-height:1.7;
+  }
+  section.alt .tagline{background:var(--white);}
+  .tagline .t{color:var(--curious); font-weight:600;}
+
+  .dialogue{border-left:3px solid var(--vista); padding:12px 18px; margin:16px 0; background:var(--paper);}
+  section.alt .dialogue{background:var(--white);}
+  .dialogue .speaker{color:var(--cello); font-weight:600;}
+  .dialogue p{margin:0; font-style:italic; color:var(--ink); font-size:15.5px;}
+
+  h3.subhead{font-family:'IBM Plex Mono',monospace; font-size:13.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--curious); margin:24px 0 10px;}
+
+  .choices{margin:10px 0 16px; padding-left:0; list-style:none; font-size:15px;}
+  .choices li{padding:6px 0; color:var(--ink-soft);}
+  .choices li.correct{color:var(--vista); font-weight:600;}
+
+  details.expand{border:1px solid var(--line); border-radius:8px; margin:16px 0; overflow:hidden;}
+  details.expand summary{
+    cursor:pointer; padding:12px 16px; font-family:'IBM Plex Mono',monospace;
+    font-size:13px; color:var(--cello); background:var(--paper); list-style:none;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  section.alt details.expand summary{background:var(--white);}
+  details.expand summary::-webkit-details-marker{display:none;}
+  details.expand summary::after{content:'+ expand'; color:var(--curious); font-size:12px;}
+  details.expand[open] summary::after{content:'– collapse';}
+  details.expand .expand-body{padding:16px; font-size:14.5px; color:var(--ink);}
+  details.expand .expand-body p{margin:0 0 10px;}
+  details.expand .expand-body p:last-child{margin-bottom:0;}
+
+  table.ladder{width:100%; border-collapse:collapse; font-size:13px; margin-top:8px;}
+  table.ladder th{background:var(--cello); color:var(--white); padding:8px 10px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+  table.ladder td{padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+
+  .note-box{
+    font-size:14px; color:var(--ink-soft); font-style:italic;
+    background:var(--paper); padding:12px 16px; border-radius:8px; margin:14px 0;
+  }
+  section.alt .note-box{background:var(--white); border:1px solid var(--line);}
+
+  .style-cols{display:grid; grid-template-columns:1fr 1fr; gap:36px;}
+  .style-cols ul{padding-left:20px; color:var(--ink-soft); font-size:14.5px;}
+  .style-cols li{margin-bottom:10px;}
+  .style-cols li::marker{color:var(--vista);}
+
+  .gallery-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .gallery-item img{width:100%; border-radius:8px; border:1px solid var(--line);}
+  .gallery-cap{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); text-align:center; margin-top:8px; font-style:italic;}
+
+  footer.docfoot{background:var(--cello-deep); color:#c9d6e6; text-align:center; padding:40px 0; font-family:'IBM Plex Mono',monospace; font-size:13px;}
+
+  @media (max-width:640px){
+    .style-cols{grid-template-columns:1fr;}
+    .gallery-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="subnav">
+  <div class="wrap">
+    <span class="navtitle">TRENCH RUN</span>
+    <a href="#overview">Overview</a>
+    <a href="#intro">Intro</a>
+    <a href="#ido">I DO</a>
+    <a href="#wedo">WE DO</a>
+    <a href="#youdo">YOU DO</a>
+    <a href="#close">Close</a>
+    <a href="#style">Style Guide</a>
+    <a href="#gallery">Gallery</a>
+  </div>
+</nav>
+
+<header class="doc-hero">
+  <div class="wrap">
+    <h1>Trench Run</h1>
+    <div class="sub">A 20-Minute Gradual Release Reading Activity</div>
+    <div class="meta">Grade 4 · "When an Island Explodes" · Portfolio Design Sample — Prepared by Chloé Newell</div>
+  </div>
+</header>
+
+<section id="overview">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">[System Overview]</span>
+      <h2>The Whole System, at a Glance</h2>
+    </div>
+    <p class="body-text">A 20-minute independent Grade 4 digital activity mapping directly to CCSS.ELA-Literacy.RI.4.3 (Cause &amp; Effect / Relationships Between Events), using a gradual-release arc — I DO, WE DO, YOU DO — with three short mini-games that turn each cause-effect link the student traces into another node lit up on the Trench grid.</p>
+    <p class="body-text">High Concept: a guided third-person 3D adventure where the student's Runner avatar drops into a cyberpunk data-world alongside Cipher, a scripted teen tech-mentor NPC. Pedagogical progression maps directly to a chain of "Data Gates" — tracing cause and effect is the structural hero of a continuous world.</p>
+
+    <h3 class="subhead">Segment &amp; Timing</h3>
+    <table class="timing">
+      <tr><th>Segment</th><th>Instructional Action</th><th>Location</th><th>Budget</th></tr>
+      <tr><td>Intro</td><td>Narrative Hook &amp; Context Setup</td><td>Spawn Bay</td><td>0:30</td></tr>
+      <tr><td>I DO</td><td>Explicit Strategy Modeling &amp; Think-Aloud</td><td>Spawn Bay</td><td>3:00</td></tr>
+      <tr><td>Transition 1</td><td>Traversal, Gate Breach, Console Swap</td><td>Spawn Bay → Grid</td><td>0:15</td></tr>
+      <tr><td>Mini-Game 1</td><td>Chain Reaction Run (Retrieval Loop)</td><td>Grid Runway</td><td>1:00</td></tr>
+      <tr><td>WE DO</td><td>Guided Practice &amp; Interactive Branching</td><td>Signal Tower</td><td>7:00</td></tr>
+      <tr><td>Transition 2</td><td>Traversal, Gate Breach, Console Swap</td><td>Signal Tower → Grid</td><td>0:15</td></tr>
+      <tr><td>Mini-Game 2</td><td>Driftline Chase (Mechanic Practice Loop)</td><td>Grid Runway</td><td>1:00</td></tr>
+      <tr><td>YOU DO</td><td>Independent Synthesis &amp; Formative Entry</td><td>Server Vault</td><td>5:00</td></tr>
+      <tr><td>Transition 3</td><td>Traversal, Gate Breach, Console Swap</td><td>Vault → Mainframe</td><td>0:15</td></tr>
+      <tr><td>Mini-Game 3</td><td>Grid Overload (Final Progression Ride)</td><td>Mainframe Approach</td><td>1:00</td></tr>
+      <tr><td>Close</td><td>Narrative Wrap-Up &amp; Reward Validation</td><td>The Core</td><td>0:45</td></tr>
+      <tr><td>TOTAL</td><td>Continuous Uninterrupted 3D Gameplay</td><td>Linear Map Sequence</td><td>20:00</td></tr>
+    </table>
+
+    <h3 class="subhead">Design Assumptions</h3>
+    <ul class="assumptions">
+      <li>Pre-Established Premise: the reward premise ("stronger effort earns more mini-game time") is established before this lesson and not re-explained mid-session.</li>
+      <li>Reading Passage: "When an Island Explodes" is based on the real 1963 formation of Surtsey, Iceland — chosen because its chain of causes (pressure → rupture → lava → landform → colonization) is concrete, sequential, and age-appropriate.</li>
+      <li>Text Complexity: intentionally above grade-level sentence complexity. Text-to-speech is available platform-wide, so this activity tests comprehension, not decoding.</li>
+    </ul>
+
+    <h3 class="subhead">Adaptive Progression Logic (System-Level)</h3>
+    <p class="body-text">Mastery of RI.4.3 isn't proven via one session — this module is a node in an adaptive sequence, powered by the detour/checkpoint telemetry already built into WE DO and YOU DO. No separate tracking system required.</p>
+    <ul class="assumptions">
+      <li>Clean Run (zero detours): mastery flagged; a short bonus "side quest" re-tests the same skill in a new context later, so a fast run gets rewarded, not just trusted.</li>
+      <li>Some Support Needed (1–2 detours): held on the current skill; next session serves a same-skill variant before advancing.</li>
+      <li>Heavy Support Needed: routed to the specific prerequisite skill that broke down, then loops back once it clears.</li>
+    </ul>
+
+    <h3 class="subhead">Reading Passage — When an Island Explodes</h3>
+    <p class="body-text"><strong>Paragraph 1:</strong> In 1963, pressure from magma deep beneath the ocean floor near Iceland finally became too strong to hold back. The seafloor cracked open, and lava poured into the freezing ocean water above it. Because the lava cooled and hardened almost instantly on contact with the cold sea, layer after layer piled up in the same spot. Within days, a brand-new island called Surtsey had risen out of the water where there had been nothing but open ocean before.</p>
+    <p class="body-text"><strong>Paragraph 2:</strong> At first, Surtsey was nothing but bare black rock, too harsh for anything to survive. But because wind and ocean currents kept carrying in seeds, insects, and driftwood, tiny signs of life slowly began to appear. Birds were drawn to the rocky cliffs, and their droppings added nutrients to the ground. As a result, thin patches of soil formed in places that had been solid rock only years before. Scientists are still tracking exactly how fast a totally lifeless island can transform into one with real plants, insects, and nesting birds.</p>
+    <p class="body-text"><strong>Paragraph 3:</strong> Surtsey didn't stay the same size for long. Because ocean waves constantly crash against its soft volcanic rock, large sections of the island have slowly worn away since it first formed. As a result, Surtsey is now less than half the size it was in the 1960s. Scientists protect the island by banning visitors, so that the plants and animals that arrive keep arriving naturally, without any human footprints changing the pattern.</p>
+  </div>
+</section>
+
+<section class="alt" id="intro">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">[Walkthrough]</span>
+      <h2>Screen-by-Screen</h2>
+    </div>
+
+    <div class="segment-block">
+      <span class="segment-fig">Fig. 1</span>
+      <div class="segment-title">Intro · 0:30</div>
+      <img class="segment-img" src="image1.png" alt="Intro screen mockup">
+      <div class="tagline"><span class="t">[SEE]</span> Cipher glitches in through a static portal at the edge of the Spawn Bay, landing beside a floating holo-map of the North Atlantic. <span class="t">[HEAR]</span> Bass-heavy synth hum settles into the ambient server-room bed that runs under the entire session.</div>
+      <div class="tagline"><span class="t">[GUIDE]</span> Cipher turns to face the Runner directly before speaking. <span class="t">[PLAYER]</span> The Runner avatar stands in the Spawn Bay, free to look around, but no input is required yet. <span class="t">[PATH]</span> A single lit data-cable is the only path forward — there is nowhere else to walk yet.</div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Yo! Signal's live. Welcome to the Trench, little bro. I'm Cipher — think of me as your wingman down here. Somethin' just lit up on the grid: a whole island popped up outta nowhere back in '63. No blueprint, no build crew. We're gonna trace exactly what caused it. You ready to run this with me?"</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="ido">
+  <div class="wrap">
+    <div class="segment-block" style="border-top:none;">
+      <span class="segment-fig">Fig. 2</span>
+      <div class="segment-title">Segment 1 — I DO (Modeling) · 3:00</div>
+      <img class="segment-img" src="image2.png" alt="I DO segment mockup">
+      <div class="tagline"><span class="t">[SEE]</span> A holographic text log opens above the map table, already scrolled to paragraph one. <span class="t">[HEAR]</span> Footsteps settle into the ambient hum as Cipher walks to the console. <span class="t">[GUIDE]</span> Cipher stops beside the console and turns to face the Runner.</div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Check it, little bro. Every time I scan a text log, I'm not just huntin' for what happened — I'm huntin' for WHY. One thing causes the next thing, like dominoes. Watch me trace it."</p></div>
+
+      <h3 class="subhead">Think-Aloud: Tracing the Chain</h3>
+      <div class="tagline"><span class="t">[SEE]</span> Key phrases glow as Cipher names them: "pressure," "cracked open," "because the lava cooled."</div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"First pass: magma's pushin' up, pressure buildin' for who knows how long. That's cause number one. Then — crack — the seafloor busts open. That's the effect of the pressure, but it's ALSO the cause of what happens next: lava floods into the cold water."</p></div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Here's the key move, right in the middle: 'Because the lava cooled and hardened almost instantly.' See that word 'because'? That's the log handin' me the wiring diagram for free. Cold water touches lava → lava hardens fast → layers stack up → island rises. One chain, four links."</p></div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"That's the move every time: find the trigger, follow the 'because,' trace where each effect turns into the next cause."</p></div>
+
+      <h3 class="subhead">Quick Check</h3>
+      <p class="body-text" style="margin-bottom:6px;"><strong>Cipher:</strong> "Which chain shows what actually happened, in order?"</p>
+      <ul class="choices">
+        <li>A) Island formed → lava cooled → magma pushed up</li>
+        <li class="correct">B) Magma pressure built → seafloor cracked → lava hit cold water → island rose ✓</li>
+        <li>C) Lava cooled → seafloor cracked → magma pressure built</li>
+      </ul>
+      <details class="expand">
+        <summary>Branching logic</summary>
+        <div class="expand-body"><p>If B: green check lights the chain; Cipher affirms and moves on. If A/C: soft glow, re-highlight, one retry. Second miss narrows to two choices and Cipher supplies the answer — no third attempt, to protect the time budget.</p></div>
+      </details>
+
+      <span class="segment-fig" style="margin-top:26px;">Fig. 3</span>
+      <div class="segment-title" style="font-size:19px;">Transition to Mini-Game 1 · 0:15</div>
+      <img class="segment-img" src="image3.png" alt="Transition to Mini-Game 1 mockup">
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Feel the chain, don't just read it. Let's run it."</p></div>
+
+      <details class="expand">
+        <summary>🎮 Mini-Game 1 — Chain Reaction Run · 1:00</summary>
+        <div class="expand-body">
+          <p><strong>Purpose:</strong> Solidify what was just modeled — reinforces paragraph 1's cause chain through the mechanic itself.</p>
+          <p><strong>Quick take:</strong> 3-lane dodge-and-swipe, Subway Surfers-style — but the Runner races just ahead of a spreading lava front, and every dodge causes a chunk of ground to harden into track beneath the Runner's feet. By the run's end, the assembled track has become the new island.</p>
+          <p><strong>Specs:</strong> Lane-switch + jump controls · 4 evenly spaced hardening milestones mark visible island growth · brief freeze beat at each milestone pulls the camera back to show growth · win condition: reach the far platform / "SIGNAL LOCKED"; failure is soft.</p>
+          <p><strong>Reward:</strong> Baseline 1 life. First-try I DO correct → +2 (3 total); needed a retry/hint → +1 (2 total). Hard cap at 3.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="wedo">
+  <div class="wrap">
+    <div class="segment-block" style="border-top:none;">
+      <span class="segment-fig">Fig. 4</span>
+      <div class="segment-title">Segment 2 — WE DO (Guided Practice) · 7:00</div>
+      <img class="segment-img" src="image4.png" alt="WE DO segment mockup">
+      <div class="tagline"><span class="t">[SEE]</span> The Runner lands at the Signal Tower; paragraph two opens on the console. <span class="t">[HEAR]</span> Gameplay music fades back into the ambient hum. <span class="t">[CONTROL]</span> The Runner automatically dismounts; control returns to the explorer avatar.</div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Nice run. This next log's trickier — it's not one chain, it's a chain that KEEPS branching. Let's trace it together."</p></div>
+      <div class="note-box">Each checkpoint below runs the same four-rung fail-safe ladder, but the ladder gets shorter as scaffolding fades — Checkpoint 1 can climb all four rungs, Checkpoint 2 sheds the bottom rung, Checkpoint 3 collapses to one soft landing. Every ladder ends the same way: affirm and move forward, no dead end, no shame.</div>
+
+      <h3 class="subhead">Checkpoint 1 — Heavy Scaffolding (full ladder available)</h3>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Okay. Bare rock, nothin' survives — that's the starting state. Then: 'because wind and ocean currents kept carrying in seeds, insects, driftwood' — there's that 'because' again. Wind and currents brought stuff in → tiny life appeared. That's link one."</p></div>
+      <p class="body-text" style="margin-bottom:6px;"><strong>Q:</strong> "What caused tiny signs of life to start appearing on Surtsey?"</p>
+      <ul class="choices">
+        <li>A) The island was warm enough for plants</li>
+        <li class="correct">B) Wind and ocean currents carried in seeds, insects, and driftwood ✓</li>
+        <li>C) Scientists planted the first seeds</li>
+      </ul>
+      <div class="note-box">A real second attempt (even imperfect) passes without entering the ladder. The ladder only triggers on a second miss or a blank/disengaged answer.</div>
+      <details class="expand">
+        <summary>Checkpoint 1 fail-safe ladder (4 tiers)</summary>
+        <div class="expand-body">
+          <table class="ladder">
+            <tr><th>Tier</th><th>Move</th><th>Cipher Line</th><th>Mechanic</th></tr>
+            <tr><td>Tier 1</td><td>"Signal's glitchy — run it back." (re-engage, no scaffold)</td><td>"Yo, that scan didn't lock in — signal's glitchy. Run it back. In your own words: what caused it?"</td><td>Free-text re-prompt; only escalates on a second disengaged/blank answer.</td></tr>
+            <tr><td>Tier 2</td><td>"Grab some data chips." (word bank)</td><td>"Storm's messin' with the signal. Grab some chips and build the answer with at least two."</td><td>Word bank: wind, currents, seeds, insects, driftwood, carried — drag to construct.</td></tr>
+            <tr><td>Tier 3</td><td>"Packet got scrambled." (reassemble)</td><td>"Packet scrambled on the way in — help me put it back in order."</td><td>Scrambled tiles drag-to-reorder into the full sentence.</td></tr>
+            <tr><td>Tier 4</td><td>"I've got most of this line, you land it." (fill-in-the-blank)</td><td>"I'll carry most of this line — you just land the last word."</td><td>Cloze blank (accepts "driftwood"). Always affirms and advances after this rung.</td></tr>
+          </table>
+        </div>
+      </details>
+
+      <h3 class="subhead">Checkpoint 2 — Moderate Scaffolding (ladder sheds the bottom rung)</h3>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Now the chain branches again. Birds show up — but why do THEY matter to the story?"</p></div>
+      <p class="body-text" style="margin-bottom:6px;"><strong>Q:</strong> "Which sentence shows the EFFECT of birds visiting the rocky cliffs?"</p>
+      <ul class="choices">
+        <li>A) "Birds were drawn to the rocky cliffs"</li>
+        <li class="correct">B) "their droppings added nutrients to the ground" ✓</li>
+        <li>C) "Scientists are still tracking exactly how fast..."</li>
+      </ul>
+      <div class="note-box">Ladder begins at Tier 2 if missed — engagement is already confirmed from Checkpoint 1, so no need to re-engage from scratch.</div>
+      <details class="expand">
+        <summary>Checkpoint 2 fail-safe ladder (2 tiers)</summary>
+        <div class="expand-body">
+          <table class="ladder">
+            <tr><th>Tier</th><th>Move</th><th>Cipher Line</th><th>Mechanic</th></tr>
+            <tr><td>Tier 2</td><td>"Grab some data chips." (word bank)</td><td>"One more chip pull — build it with at least two."</td><td>Word bank: cliffs, droppings, nutrients, added, ground.</td></tr>
+            <tr><td>Tier 3</td><td>"Packet got scrambled." (reassemble)</td><td>"Scrambled again — you know the drill."</td><td>Drag-to-reorder into the full sentence. Always affirms and advances after this rung.</td></tr>
+          </table>
+        </div>
+      </details>
+
+      <h3 class="subhead">Checkpoint 3 — Minimal Scaffolding (ladder collapses to one soft landing)</h3>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"One more link, you're on your own. Type it: because of the nutrients, what happened to the ground?"</p></div>
+      <div class="note-box">Strong response (names soil forming): Cipher affirms the full chain traced. Weak/off-topic: this checkpoint is meant to feel like flying solo, so it gets one supported attempt, not a multi-rung climb.</div>
+      <details class="expand">
+        <summary>Checkpoint 3 fail-safe ladder (1 tier)</summary>
+        <div class="expand-body">
+          <table class="ladder">
+            <tr><th>Tier</th><th>Move</th><th>Cipher Line</th><th>Mechanic</th></tr>
+            <tr><td>Sole Rung</td><td>"Let's build it together." (sentence frame)</td><td>"One assist, then you're solo again — finish this one with me."</td><td>Sentence frame: "Because nutrients were added, ____." Always affirms and advances immediately — no further tiers at this depth.</td></tr>
+          </table>
+        </div>
+      </details>
+
+      <span class="segment-fig" style="margin-top:26px;">Fig. 5</span>
+      <div class="segment-title" style="font-size:19px;">Transition to Mini-Game 2 · 0:15</div>
+      <img class="segment-img" src="image5.png" alt="Transition to Mini-Game 2 mockup">
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"You just traced how the wind and currents got stuff movin' — let's ride that same current and see what it's carryin'."</p></div>
+
+      <details class="expand">
+        <summary>🎮 Mini-Game 2 — Driftline Chase · 1:00</summary>
+        <div class="expand-body">
+          <p><strong>Purpose:</strong> Solidify paragraph 2's first link — wind and currents carrying seeds, insects, and driftwood onto bare rock — through the mechanic itself.</p>
+          <p><strong>Quick take:</strong> A steering-and-catch mini-game — the Runner banks along a winding current-line to intercept drifting seeds and driftwood. Each catch deposits a fleck of green onto a tiny island silhouette. Steering toward a natural force to catch what it carries is a literal enactment of "currents carried in seeds."</p>
+          <p><strong>Specs:</strong> Steer left/right along a winding path, ~15–20 sec · drift items cross at intervals · steering into an item auto-catches it, no separate tap · missed items don't end the run · win condition: island silhouette reaches full green coverage.</p>
+          <p><strong>Reward:</strong> Baseline 1 life. No detours across WE DO's three checkpoints → +2 (3 total); one or more detours → +1 (2 total). Hard cap at 3.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="youdo">
+  <div class="wrap">
+    <div class="segment-block" style="border-top:none;">
+      <span class="segment-fig">Fig. 6</span>
+      <div class="segment-title">Segment 3 — YOU DO (Independent Application) · 5:00</div>
+      <img class="segment-img" src="image6.png" alt="YOU DO segment mockup">
+      <div class="tagline"><span class="t">[SEE]</span> The Runner arrives at the Server Vault, overlooking the full grid back to Spawn Bay. <span class="t">[GUIDE]</span> Cipher takes a step back, giving the Runner more space than before.</div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"You've been tracin' more of this chain yourself every round — that's exactly right. You've got two chains locked now: how the island got BORN, and how it started comin' ALIVE. Let's link those into one chain first — then I've got somethin' you haven't seen yet."</p></div>
+
+      <h3 class="subhead">Checkpoint 1 — Guided Frame (bridges what's already been taught)</h3>
+      <p class="body-text"><strong>Sentence frame:</strong> "An eruption caused ____, and after that, ____ caused life to start appearing."</p>
+      <div class="note-box">Strong: full chain, both halves, locked — Cipher moves to something new. Detail-focused: redirected to the CHAIN, not details. Off-topic: co-built with Cipher.</div>
+
+      <h3 class="subhead">New Log · Unseen Text</h3>
+      <div class="tagline"><span class="t">[SEE]</span> A third holographic log unlocks — one never encountered in this session. Paragraph 3 appears in full, no highlights. <span class="t">[HEAR]</span> A distinct "new data" chime, different from any used so far.</div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"This one's brand new — nobody's walked you through this log. I'm not gonna trace it with you first. Read it, then you're flying solo."</p></div>
+      <div class="note-box">Design note: this paragraph was never modeled in I DO or scaffolded in WE DO — held in reserve specifically so Checkpoint 2 tests transfer of the skill, not recall of an already-rehearsed chain.</div>
+
+      <h3 class="subhead">Checkpoint 2 — No Frame (the actual independent test)</h3>
+      <p class="body-text"><strong>Empty text box:</strong> "Real test. No frame, no walkthrough. One sentence: what caused Surtsey to shrink?"</p>
+      <div class="note-box">Strong (names wave erosion as cause, shrinking as effect): Cipher affirms a chain he never showed the Runner. Missing a link: prompted for the gap. Off-topic: redirected to what's hitting the island and what that's doing to it. Regardless of path, Cipher always affirms and moves the Runner forward after this final attempt.</div>
+
+      <span class="segment-fig" style="margin-top:26px;">Fig. 7</span>
+      <div class="segment-title" style="font-size:19px;">Transition to Mini-Game 3 · 0:15</div>
+      <img class="segment-img" src="image7.png" alt="Transition to Mini-Game 3 mockup">
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"One last run. Everything you traced is about to fire the whole system. Let's light it up."</p></div>
+
+      <details class="expand">
+        <summary>🎮 Mini-Game 3 — Grid Overload · 1:00</summary>
+        <div class="expand-body">
+          <p><strong>Purpose:</strong> Culminating "you cracked the chain" payoff, and a final embodied rep of the full cause-effect chain right as the summary sentence settles in.</p>
+          <p><strong>Quick take:</strong> Flappy Bird-style tap-to-flap through gaps — but each of the 2–3 legs has its own terrain: bare rock → soil patches → green life. The terrain completes the chain as the Runner completes the flight; the hand-off beat between legs is visual proof one link fired the next.</p>
+          <p><strong>Specs:</strong> Tap to boost/ascend, gravity pulls down between taps · 2–3 legs, obstacles per leg · each leg swaps to the next terrain stage using one reusable art set · win condition: reach the Mainframe core with full green terrain, "SIGNAL LOCKED" landing.</p>
+          <p><strong>Reward:</strong> Baseline 1 life for everyone, including heavy YOU DO scaffolding. Bonus scales with support needed: no detours → 3 lives; one detour → 2; multiple → 1 (baseline only).</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="close">
+  <div class="wrap">
+    <div class="segment-block" style="border-top:none;">
+      <span class="segment-fig">Fig. 8</span>
+      <div class="segment-title">Close · 0:45</div>
+      <img class="segment-img" src="image8.png" alt="Close screen mockup">
+      <div class="tagline"><span class="t">[SEE]</span> Camera pulls back to show the entire lit grid in one view, Spawn Bay to Mainframe. <span class="t">[HEAR]</span> The ambient hum softens under Cipher's voice — the first time all session it noticeably quiets.</div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"You just did something most scanners can't — you didn't just read what happened, you traced WHY it happened, link by link."</p></div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Next log, we're gonna hit a chain that branches even further — one cause, three different effects. Get ready."</p></div>
+      <div class="dialogue"><span class="speaker">Cipher:</span> <p>"Catch you at the next Gate, little bro."</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="style">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">[Reference]</span>
+      <h2>Vertical Slice / Style Guide</h2>
+    </div>
+    <div class="style-cols">
+      <div>
+        <h3 class="subhead">Technical &amp; World Constraints</h3>
+        <ul>
+          <li>Engine Environment: one uninterrupted 3D map across five linear zones (Spawn Bay → Grid Runway → Signal Tower → Server Vault → Mainframe). No hub or loading screens.</li>
+          <li>Camera: third-person follow cam during free-roam; locks to a fixed framing at the start of each mini-game; smooth transition cut, never a hard cut.</li>
+          <li>Input — Explorer/Free-Roam: standard third-person movement with a single context-sensitive interact button.</li>
+          <li>Input — Mini-Game 1: 3-lane lane-switch + jump; dodges double as the build input.</li>
+          <li>Input — Mini-Game 2: steering (left/right bank) to intercept drifting items; contact is the catch.</li>
+          <li>Input — Mini-Game 3: tap-to-ascend / release-to-fall, gravity-based.</li>
+          <li>Input — Fail-Safe Ladder: four reusable input types shared across every checkpoint in every future module — tap, drag-to-slot, drag-to-reorder, tap/type.</li>
+          <li>State Machines: checkpoint boundaries trigger an absolute gameplay freeze. Auto-resume disabled; ladder rungs are sub-states sharing this same freeze/resume behavior.</li>
+          <li>Accessibility: text-to-speech available platform-wide. Correct/incorrect states signaled by icon + color together, never color alone.</li>
+        </ul>
+        <h3 class="subhead">Character &amp; Asset Specifications</h3>
+        <ul>
+          <li>Cipher: single, immutable 3D character model used uniformly across all states — tech-visor teen mentor, neon-trim streetwear, holographic wing pack.</li>
+          <li>Runner Avatar: modular customization across three slots — head (headset with glowing mic boom), torso (tee/jacket with pixel-circuit patch), back accessory (Holographic Glider, unequipped until launch). One rig, swappable slot assets.</li>
+          <li>Spatial Blocking: Cipher stands beside the Runner in I DO, paces alongside in WE DO, steps physically away in YOU DO.</li>
+          <li>Sprite Economy: chain-link console runs on one core sprite sheet with badge overlays ("Link 1," "Link 2") — no asset re-draws.</li>
+          <li>Fail-Safe Ladder UI Kit: word-bank chips, scrambled-packet tiles, fill-in-the-blank line — one reusable asset set across every checkpoint in every future module.</li>
+          <li>Mini-Game Asset Reuse: track-hardening tiles, drift-catch sprites, and terrain-stage backgrounds are each a single reusable set — the embodiment swaps per lesson, the asset system doesn't.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="subhead">UI, Audio, &amp; Script Tags</h3>
+        <ul>
+          <li>UI &amp; Audio: map-centric, minimal chrome. Continuous ambient synth-hum audio bed under the whole session.</li>
+          <li>Chime Language: one "correct" chime reused everywhere; one "gentle miss" tone; one distinct "ladder rung advance" chime — audio signals depth of support without extra dialogue.</li>
+          <li>System Scripting Tags: [SEE] / [HEAR] (environment/audio), [PLAYER] (user input), [GUIDE] (mentor movement), [PATH] (layout cues), [CONTROL] (avatar-to-vehicle transitions). Fail-safe ladder rungs use this same tag set.</li>
+        </ul>
+        <h3 class="subhead">Design Rationale</h3>
+        <ul>
+          <li>Science of Reading Alignment: targets RI.4.3 — cause-and-effect relationships and signal-word instruction — assuming baseline grade-level decoding mastery.</li>
+          <li>Embodied Mechanic Reinforcement: each mini-game's core mechanic enacts what was just read rather than quizzing it. Reinforcement is structural and kinesthetic.</li>
+          <li>Genuine Independent Application: YOU DO's final checkpoint tests a paragraph never modeled or scaffolded, so "no frame" means real transfer, not rehearsed recall.</li>
+          <li>Gradual Release (Fisher &amp; Frey): scaffolding scales from expert think-aloud (I DO) to interactive text selection (WE DO) to open-text synthesis (YOU DO).</li>
+          <li>Vygotskian Scaffolding: checkpoint design fades structural supports — heavy → moderate → minimal — as competence is established.</li>
+          <li>Targeted Branching: diagnostic detours trigger on classic Grade 4 cause-effect errors, contextualized within the narrative to protect motivation.</li>
+          <li>Gamified Retrieval Practice: mini-games function as immediate retrieval practice loops following explicit instruction.</li>
+          <li>Repeatable/Scalable Architecture: pre-scripted misconception paths and immutable environmental transitions establish a production blueprint duplicable across any CCSS passage or standard.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="gallery">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">[Appendix]</span>
+      <h2>Screen Gallery</h2>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item"><img src="image1.png" alt="Fig 1 Intro"><div class="gallery-cap">Fig. 1 — Intro</div></div>
+      <div class="gallery-item"><img src="image2.png" alt="Fig 2 I DO"><div class="gallery-cap">Fig. 2 — I DO</div></div>
+      <div class="gallery-item"><img src="image3.png" alt="Fig 3 Transition to MG1"><div class="gallery-cap">Fig. 3 — Transition to MG1</div></div>
+      <div class="gallery-item"><img src="image4.png" alt="Fig 4 WE DO"><div class="gallery-cap">Fig. 4 — WE DO</div></div>
+      <div class="gallery-item"><img src="image5.png" alt="Fig 5 Transition to MG2"><div class="gallery-cap">Fig. 5 — Transition to MG2</div></div>
+      <div class="gallery-item"><img src="image6.png" alt="Fig 6 YOU DO"><div class="gallery-cap">Fig. 6 — YOU DO</div></div>
+      <div class="gallery-item"><img src="image7.png" alt="Fig 7 Transition to MG3"><div class="gallery-cap">Fig. 7 — Transition to MG3</div></div>
+      <div class="gallery-item"><img src="image8.png" alt="Fig 8 Close"><div class="gallery-cap">Fig. 8 — Close</div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="docfoot">Trench Run · Portfolio Design Sample · Chloé Newell</footer>
+
+</body>
+</html>
