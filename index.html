@@ -218,8 +218,9 @@
   }
   .stat-highlight span{position:relative; z-index:1;}
   .work-card:nth-of-type(1) .stat-svg{transform:rotate(-1.1deg);}
-  .work-card:nth-of-type(3) .stat-svg{transform:rotate(0.9deg);}
-  .work-card:nth-of-type(5) .stat-svg{transform:rotate(-0.7deg);}
+  .work-card:nth-of-type(2) .stat-svg{transform:rotate(0.8deg);}
+  .work-card:nth-of-type(4) .stat-svg{transform:rotate(0.9deg);}
+  .work-card:nth-of-type(6) .stat-svg{transform:rotate(-0.7deg);}
 
   .work-body ul{margin:0 0 18px; padding-left:20px; color:var(--ink-soft); font-size:15px;}
   .work-body li{margin-bottom:7px;}
@@ -360,7 +361,7 @@
     <div class="section-head">
       <span class="tag">[BUILD LOG]</span>
       <h2>Selected Work</h2>
-      <p style="color:var(--ink-soft); font-size:15.5px; margin-top:10px;">Five ways I've built instruction into product.</p>
+      <p style="color:var(--ink-soft); font-size:15.5px; margin-top:10px;">Six ways I've built instruction into product.</p>
     </div>
 
     <div class="work-list">
@@ -378,6 +379,21 @@
         </ul>
         <a class="work-link" href="https://chloenewell.github.io/trench-run/" target="_blank" rel="noopener">View full production script &amp; technical style guide →</a>
         <div class="work-caption">// portfolio version — passage and characters rebuilt from the ground up for public sharing</div>
+      </div>
+
+      <div class="work-card">
+        <span class="work-tag">Adaptive Game Design · Early Childhood Literacy</span>
+        <div class="work-title">Phoneme Patrol</div>
+        <p class="desc">A confidence-aware adaptive phonics concept for ages 4–6, mapped to CCSS.ELA-Literacy.RF.K.2.D — measuring how sure a child is, not just whether they're right.</p>
+        <div class="stat-highlight"><svg class="stat-svg"></svg><span>1 engine, 5+ literacy skills</span></div>
+        <ul>
+          <li>A confidence-check layer on every answer — "I know it / I think so / I'm guessing" — feeding a three-way adaptive engine, not just a right/wrong tally</li>
+          <li>Visible world-building progression instead of an abstract coin counter, tuned to what actually motivates a 4–6-year-old</li>
+          <li>Grounded in real UX tradeoffs for the age group — no timers, audio-first navigation, one-tap interactions for early motor control</li>
+          <li>Same fixed-engine, swappable-content architecture as Trench Run — the skill changes, the system doesn't</li>
+        </ul>
+        <a class="work-link" href="https://chloenewell.github.io/phoneme-patrol/" target="_blank" rel="noopener">View full case study →</a>
+        <div class="work-caption">// concept exploration — built independently, not an official Age of Learning production</div>
       </div>
 
       <div class="work-card split">
@@ -546,17 +562,28 @@
 
       var len = path.getTotalLength();
       path.style.strokeDasharray = len;
-      path.style.strokeDashoffset = len;
-      el.dataset.drawn = 'false';
+
+      if (el.dataset.drawn === 'true') {
+        path.style.transition = 'none';
+        path.style.strokeDashoffset = '0';
+      } else {
+        path.style.strokeDashoffset = len;
+      }
     });
   }
 
   drawStatCircles();
-  window.addEventListener('resize', drawStatCircles);
+
+  var resizeTimer;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawStatCircles, 150);
+  });
 
   var statObserver = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       if (entry.isIntersecting) {
+        entry.target.dataset.drawn = 'true';
         var path = entry.target.querySelector('.stat-svg path');
         if (path) path.style.strokeDashoffset = '0';
         statObserver.unobserve(entry.target);
@@ -565,6 +592,7 @@
   }, { threshold: 0.5 });
 
   document.querySelectorAll('.stat-highlight').forEach(function(el){
+    el.dataset.drawn = 'false';
     statObserver.observe(el);
   });
 </script>
