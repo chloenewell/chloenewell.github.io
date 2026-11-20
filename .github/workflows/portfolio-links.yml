@@ -1,0 +1,27 @@
+name: Inspect portfolio prototype buttons
+on:
+  push:
+    paths:
+      - '.github/workflows/portfolio-links.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show small HTML excerpts for prototype links
+        shell: python
+        run: |
+          import re
+          from pathlib import Path
+          s=Path('edtech/index.html').read_text(encoding='utf-8')
+          print('HTML length',len(s))
+          for term in ['Play Prototype','LifeQuest','Trench Run','lifequest-prototype','trench-run-prototype','playables/']:
+            matches=list(re.finditer(re.escape(term),s,re.I))
+            print('TERM',term,'COUNT',len(matches))
+            for m in matches[:12]:
+              before=s[max(0,m.start()-350):m.start()]
+              after=s[m.end():m.end()+450]
+              print('OFFSET',m.start(),repr(before[-350:]+s[m.start():m.end()]+after[:450]))
