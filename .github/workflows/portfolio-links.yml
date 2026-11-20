@@ -1,27 +1,38 @@
-name: Inspect portfolio prototype buttons
+name: Update portfolio live prototype links
 on:
   push:
     paths:
       - '.github/workflows/portfolio-links.yml'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
-  inspect:
+  update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Show small HTML excerpts for prototype links
+      - name: Update only LifeQuest and Trench Run buttons
         shell: python
         run: |
-          import re
           from pathlib import Path
-          s=Path('edtech/index.html').read_text(encoding='utf-8')
-          print('HTML length',len(s))
-          for term in ['Play Prototype','LifeQuest','Trench Run','lifequest-prototype','trench-run-prototype','playables/']:
-            matches=list(re.finditer(re.escape(term),s,re.I))
-            print('TERM',term,'COUNT',len(matches))
-            for m in matches[:12]:
-              before=s[max(0,m.start()-350):m.start()]
-              after=s[m.end():m.end()+450]
-              print('OFFSET',m.start(),repr(before[-350:]+s[m.start():m.end()]+after[:450]))
+          p = Path('edtech/index.html')
+          s = p.read_text(encoding='utf-8')
+          old_trench = '<a class="action play-prototype" data-embedded-prototype="trench" href="playables/trench_run_learning_prototype.html" rel="noopener noreferrer" target="_blank">Play Prototype ↗</a>'
+          new_trench = '<a class="action play-prototype" href="https://chloenewell.github.io/trench-run-prototype/" rel="noopener noreferrer" target="_blank">Play Prototype ↗</a>'
+          old_life = '<button aria-controls="overview-2" aria-expanded="false" class="toggle" onclick="toggleOverview(this)" type="button">View Overview +</button></div>'
+          new_life = '<button aria-controls="overview-2" aria-expanded="false" class="toggle" onclick="toggleOverview(this)" type="button">View Overview +</button><a class="action play-prototype" href="https://chloenewell.github.io/lifequest-prototype/" rel="noopener noreferrer" target="_blank">Play Weekend Challenge ↗</a></div>'
+          assert s.count(old_trench) == 1, 'Trench Run button did not match exactly once'
+          assert s.count(old_life) == 1, 'LifeQuest button did not match exactly once'
+          s = s.replace(old_trench, new_trench, 1).replace(old_life, new_life, 1)
+          assert s.count('href="https://chloenewell.github.io/trench-run-prototype/"') == 1
+          assert s.count('href="https://chloenewell.github.io/lifequest-prototype/"') == 1
+          p.write_text(s, encoding='utf-8')
+          print('Updated both portfolio links, original layout retained')
+      - name: Commit portfolio update
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add edtech/index.html
+          git commit -m "Link LifeQuest and updated Trench Run playable prototypes"
+          git push
